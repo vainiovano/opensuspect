@@ -38,30 +38,31 @@ func get_input():
 		velocity.y = lerp(prev_velocity.y, 0, 0.17)
 
 func _physics_process(delta):
-	if main_player:
-		$Camera2D.current = true
-		get_input()
+	if get_tree().is_network_server():
 		velocity = move_and_slide(velocity)
-		emit_signal("main_player_moved", position, velocity)
 	else:
-		$Camera2D.current = false
+		if main_player:
+			$Camera2D.current = true
+			get_input()
+			emit_signal("main_player_moved", velocity)
+		else:
+			$Camera2D.current = false
 
-	# We handle animations and stuff here
-	if velocity.x > x_anim_margin:
-		$Sprite.play("walk-h")
-		$Sprite.flip_h = false
-	elif velocity.x < -x_anim_margin:
-		$Sprite.play("walk-h")
-		$Sprite.flip_h = true
-	elif velocity.y > y_anim_margin:
-		$Sprite.play("walk-down")
-	elif velocity.y < -y_anim_margin:
-		#replace with walking up anim when done
-		$Sprite.play("walk-down")
-	else:
-		$Sprite.play("idle")
+		# We handle animations and stuff here
+		if velocity.x > x_anim_margin:
+			$Sprite.play("walk-h")
+			$Sprite.flip_h = false
+		elif velocity.x < -x_anim_margin:
+			$Sprite.play("walk-h")
+			$Sprite.flip_h = true
+		elif velocity.y > y_anim_margin:
+			$Sprite.play("walk-down")
+		elif velocity.y < -y_anim_margin:
+			#replace with walking up anim when done
+			$Sprite.play("walk-down")
+		else:
+			$Sprite.play("idle")
 
 func move_to(new_pos, new_velocity):
-	# Movement check here
 	position = new_pos
 	velocity = new_velocity
